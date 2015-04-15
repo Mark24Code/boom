@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load account_filter %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block main_content %}
+    <div class="container" style="margin: 0;width: 100%;padding: 20px 15px 0;">
+        <div>
+            <ol class="breadcrumb">
+                <li class="active">客户</li>
+                <li class="active">客户列表</li>
+            </ol>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#new_product_win">创建客户</button>
+        </div>
+        <div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>客户编号</th>
+                    <th>客户姓名</th>
+                    <th>客户电话</th>
+                    <th>车牌号码</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% if customers %}
+                        {% for customer in customers %}
+                            <tr>
+                                <td><a href="/account/view_customer/{{ customer.id }}/">{{ customer.id|get_customer_number }}</a></td>
+                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.tel_number }}</td>
+                                <td>{{ customer.plate_number }}</td>
+                                <td>{{ customer.created_at|date:'Y-m-d H:i' }}</td>
+                                <td><a onclick="edit_customer({{ customer.id }});" href="javascript:void(0)">编辑</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <nav>
+                <ul class="pagination">
+                    <li class="{% if not pageinfo.has_prev %}disabled{% endif %}">
+                        <a href="{% if not pageinfo.has_prev %}javascript:void(0);{% else %}/account/list_customers/?page={{ pageinfo.prev }}{% endif %}" aria-label="上一页">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% for i in pageinfo.page_list %}
+                        {% if i == pageinfo.cur_page %}
+                        <li><a style="color: #ccc" href="javascript:void(0);">{{ i }}</a></li>
+                        {% else %}
+                        <li><a href="/account/list_customers/?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="{% if not pageinfo.has_next %}disabled{% endif %}">
+                        <a href="{% if not pageinfo.has_next %}javascript:void(0);{% else %}/account/list_customers/?page={{ pageinfo.next }}{% endif %}" aria-label="下一页">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+
+                    <li class="disabled">
+                        <a href="javascript:void(0)">
+                            <span aria-hidden="true">共{{ pageinfo.object_count }}条信息</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+    <!-- 创建新产品弹窗 -->
+    <div class="modal fade" id="new_product_win" tabindex="-1" role="dialog" aria-labelledby="new_productLabel" aria-hidden="true">
+        <div class="modal-dialog modal-width">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">创建客户</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="create_form">
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">客户名称:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="name" name="name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tel_number" class="col-sm-2 control-label">客户电话:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="tel_number" name="tel_number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="plate_number" class="col-sm-2 control-label">车牌号:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="plate_number" name="plate_number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle_brand" class="col-sm-2 control-label">车辆品牌:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="vehicle_brand" name="vehicle_brand">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="motorcycle_type" class="col-sm-2 control-label">车辆型号:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="motorcycle_type" name="motorcycle_type">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mileage" class="col-sm-2 control-label">公里数:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="mileage" name="mileage">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="adress" class="col-sm-2 control-label">客户地址:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="adress" name="adress">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="remark" class="col-sm-2 control-label">备注:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" id="remark" name="remark"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancle_creating">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="createNewCustomer();">创建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑客户弹窗 -->
+    <div class="modal fade" id="edit_customer_win" tabindex="-1" role="dialog" aria-labelledby="edit_productLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">编辑产品</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="edit_form">
+                        <input type="hidden" name="customer_id" id="id_edit">
+                        <div class="form-group">
+                            <label for="name_edit" class="col-sm-2 control-label">客户名称:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="name_edit" name="name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tel_number_edit" class="col-sm-2 control-label">客户电话:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="tel_number_edit" name="tel_number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="plate_number_edit" class="col-sm-2 control-label">车牌号:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="plate_number_edit" name="plate_number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle_brand_edit" class="col-sm-2 control-label">车辆品牌:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="vehicle_brand_edit" name="vehicle_brand">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="motorcycle_type_edit" class="col-sm-2 control-label">车辆型号:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="motorcycle_type_edit" name="motorcycle_type">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mileage_edit" class="col-sm-2 control-label">公里数:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="mileage_edit" name="mileage">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="adress_edit" class="col-sm-2 control-label">客户地址:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="adress_edit" name="adress">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="remark_edit" class="col-sm-2 control-label">备注:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" id="remark_edit" name="remark"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancle_">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEdit();">保存</button>
+                    <!--<button type="button" class="btn btn-danger" onclick="del_customer();">删除客户</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="/static/js/account.js"></script>
+{% endblock %}

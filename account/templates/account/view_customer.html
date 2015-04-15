@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load account_filter %}
+
+{% block css %}
+<style>
+.col-xs-5 {
+    background-color: rgba(86, 61, 124, 0.15);
+    border: 1px solid rgba(86, 61, 124, 0.2);
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+</style>
+{% endblock %}
+
+{% block main_content %}
+    <div class="container" style="margin: 0;width: 100%;padding: 20px 15px 0;">
+        <div>
+            <ol class="breadcrumb">
+                <li class="active">客户</li>
+                <li class="active"><a onclick="history.back();" href="javascript:void(0);">返回列表</a></li>
+            </ol>
+        </div>
+
+        <div class="page-header">
+            <h1>客户详情</h1>
+        </div>
+
+        <div class="row" style="margin-left:60px;">
+            <h3>个人信息</h3>
+            <div class="col-xs-5"><strong>客户编号: </strong>{{ customer.id|get_customer_number }}</div>
+            <div class="col-xs-5"><strong>客户姓名: </strong>{{ customer.name }}</div>
+            <div class="col-xs-5"><strong>客户电话: </strong>{{ customer.tel_number }}</div>
+            <div class="col-xs-5"><strong>客户地址: </strong>{{ customer.adress }}</div>
+            <div class="col-xs-5"><strong>创建时间: </strong>{{ customer.created_at|date:'Y-m-d H:i' }}</div>
+            <div class="col-xs-5"><strong>备注: </strong>{{ customer.remark }}</div>
+        </div>
+        <div class="row" style="margin-left:60px;">
+            <h3>车辆信息</h3>
+            <div class="col-xs-5"><strong>车牌号码: </strong>{{ customer.plate_number }}</div>
+            <div class="col-xs-5"><strong>车辆品牌: </strong>{{ customer.vehicle_brand }}</div>
+            <div class="col-xs-5"><strong>车辆型号: </strong>{{ customer.motorcycle_type }}</div>
+            <div class="col-xs-5"><strong>公里数: </strong>{{ customer.mileage }}</div>
+        </div>
+
+        
+        <div class="page-header">
+            <h1>换油记录</h1>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#new_log_win">创建记录</button>
+        </div>
+
+        <div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>公里数</th>
+                    <th>机油型号</th>
+                    <th>机滤</th>
+                    <th>空滤</th>
+                    <th>汽滤</th>
+                    <th>其他产品</th>
+                    <th>合计金额</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% if purchase_histories %}
+                        {% for purchase_historie in purchase_histories %}
+                            <tr id="log_{{ purchase_historie.id}}">
+                                <td>{{ purchase_historie.created_at|date:'Y-m-d H:i' }}</td>
+                                <td>{{ purchase_historie.mileage }}</td>
+                                <td>{{ purchase_historie.oil_type }}</td>
+                                <td>{{ purchase_historie.oil_filter }}</td>
+                                <td>{{ purchase_historie.air_filter }}</td>
+                                <td>{{ purchase_historie.steam_filter }}</td>
+                                <td>{{ purchase_historie.other_products }}</td>
+                                <td>{{ purchase_historie.price }}</td>
+                                <td>{{ purchase_historie.remark }}</td>
+                                <td><a onclick="deleteLog({{ purchase_historie.id }});" href="javascript:void(0);">删除</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- 创建新记录弹窗 -->
+    <div class="modal fade" id="new_log_win" tabindex="-1" role="dialog" aria-labelledby="new_productLabel" aria-hidden="true">
+        <div class="modal-dialog modal-width">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">创建记录</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="create_form">
+                        <input type="hidden" name="customer_id" id="id_edit" value="{{ customer.id }}">
+                        <div class="form-group">
+                            <label for="mileage" class="col-sm-2 control-label">公里数:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="mileage" name="mileage">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="oil_type" class="col-sm-2 control-label">机油型号:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="oil_type" name="oil_type">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="oil_filter" class="col-sm-2 control-label">机滤:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="oil_filter" name="oil_filter">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="air_filter" class="col-sm-2 control-label">空滤:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="air_filter" name="air_filter">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="steam_filter" class="col-sm-2 control-label">汽滤:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="steam_filter" name="steam_filter">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="other_products" class="col-sm-2 control-label">其它产品:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="other_products" name="other_products">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="price" class="col-sm-2 control-label">合计金额:</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="price" name="price">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="remark" class="col-sm-2 control-label">备注:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" id="remark" name="remark"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancle_creating">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="createNewLog();">创建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="/static/js/account.js"></script>
+{% endblock %}

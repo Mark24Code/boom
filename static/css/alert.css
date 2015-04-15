@@ -1,0 +1,34 @@
+.alert-modal-header {
+    background-color: #5bc0de;
+    border: 1px solid #5bc0de;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    min-height: 16px;
+    padding: 8px;
+}
+.alert-modal-position{
+    margin: 100px auto;
+}
+.alert-modal-footer{
+    border-top: 1px solid #e5e5e5;
+    padding: 5px;
+    text-align: right;
+}
+.toast-content{
+    background-color: #080808;
+    border-bottom: 1px solid #080808;
+    border-radius: 15px;
+    display: none;
+    font-size: 1.2em;
+    height: 34px;
+    left: 40%;
+    line-height: 20px;
+    margin: 0;
+    min-width: 100px;
+    opacity: 0.8;
+    padding: 8px 14px;
+    position: fixed;
+    text-align: center;
+    top: 72px;
+    color: #CCCCCC;
+}
